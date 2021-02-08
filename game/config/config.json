@@ -1,0 +1,37 @@
+{
+    "Settings": {
+        "ColorbyChar": {
+            "0": "(255,0,0)",
+            "1": "(18,157,249)",
+            "2": "(0,255,0)",
+            "E": "(0,0,0)"
+        },
+        "Frame": {
+            "Title": "2D Game",
+            "height" : 800,
+            "width" : 800,
+            "PaddingY" : 5,
+            "PaddingX" : 5,
+            "RenderMode" : "colored"
+        },
+        "Rectangle": {
+            "OffsetX": 0,
+            "OffsetY": 0
+        },
+        "Camera": {
+            "height": 10,
+            "width": 10
+        },
+        "Map": {
+            "Height" : 100,
+            "Width" : 100,
+            "seed" : 21,
+            "scale" : 1000,
+            "octaves" : 5,
+            "persistence" : 0.5,
+            "lacunarity" : 2.57,
+            "offset" : "(0,0)"
+        }
+
+    }
+}

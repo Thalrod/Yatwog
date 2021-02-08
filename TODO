@@ -1,0 +1,10 @@
+Ranger les file:
+ -Fix l'edit de la map
+ -et continuer a add les choses en fonction du main.py (en suivant le file rouge)
+ -charger Rectangle dans un mainrenderer.py ou un truc comme ça
+ -charger ColorbyChar dans world.py ou un truc comme ça
+ -faut faire le link entre mainloop -> map et entity
+ -changer la taille de la fenetre dans la map.py
+ -mettre juste une loop dans le game.py afin d'être mieux organisé après
+ suce ?
+ 
