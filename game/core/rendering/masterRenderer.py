@@ -44,11 +44,14 @@ class MasterRenderer():
         self.pos = {}
 
     def renderMap(self, map, colourmap, mode):
+
+        res = len(map)
+
         if mode == Mode.COLORED.value:
             for j in range(len(map)):
                 for o in range(len(map[j])):
-                    y = int(self.rectheight) * j
-                    x = int(self.rectwidth) * o
+                    y = j
+                    x = o
                     w = self.rectwidth
                     h = self.rectheight
                     color = colourmap[j * len(map[j]) + o]
@@ -57,6 +60,7 @@ class MasterRenderer():
                     r.draw()
 
                     self.pos[str(o) + "," + str(j)] = r
+
         elif mode == Mode.GREY.value:
             for j in range(len(map)):
                 for o in range(len(map[j])):
@@ -70,29 +74,6 @@ class MasterRenderer():
                     r.draw()
 
                     self.pos[str(o) + "," + str(j)] = r
-
-        """for j in range(len(map)):
-            for o in range(len(map[j])):
-
-                y = int(self.rectheight)*(j+1)+(self.OffsetY*(j+2))
-                x = int(self.rectwidth)*(o+1)+(self.OffsetX*(o+2))
-                w = self.rectwidth
-                h = self.rectheight
-                #Load Map
-                try:
-                    if map[j][o] in self.ColorbyChar.keys():
-                        r = Rectangle(self.screen, x, y, w, h, self.ColorbyChar[map[j][o]])
-                        r.draw()
-
-                    else:
-                        r = Rectangle(self.screen, x, y, w, h, (0,200,50))
-                        r.draw()
-                except Exception as e:
-                    print(e)
-                    r = Rectangle(self.screen, x, y, w, h, (255,255,255))
-                    r.draw()
-
-                self.pos[str(o)+","+str(j)] = r"""
 
     def getRectangleFromMousePos(self):
         try:

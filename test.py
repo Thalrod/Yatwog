@@ -5,7 +5,7 @@ class Game():
     def __init__(self):
         pygame.init()
         self.display = pygame.display
-        self.screen = self.display.set_mode((500, 500))
+        self.screen = self.display.set_mode((1280, 720))
         self.display.set_caption("test caption")
         self.run()
 
@@ -26,20 +26,23 @@ class Game():
             self.update()
 
     def update(self):
+        self.screen.fill(color=(255, 255, 255))
         self.drawTriangle()
         self.display.flip()
-        self.screen.fill(color=(255, 255, 255))
-
 
     def drawTriangle(self):
-        PaddingX = 50
-        PaddingY = 150
-        pygame.draw.polygon(self.screen, (125, 125, 0), ((0 + PaddingX, 0 + PaddingY), (0 + PaddingX, 50 + PaddingY), (50 + PaddingX, 0 + PaddingY)))
-        pygame.draw.polygon(self.screen, (0, 125, 125), ((50 + PaddingX, 0 + PaddingY), (50 + PaddingX, 50 + PaddingY), (0 + PaddingX, 50 + PaddingY)))
+        width = self.screen.get_width()
+        height = self.screen.get_height()
+        res = 1024
+        for y in range(int((height / width * res) // 1)):
+            for x in range(int(res)):
+                x0 = width / res * x
+                y0 = width / res * y
+                x1 = width / res * (x + 1)
+                y1 = width / res * (y + 1)
 
-class Triangle():
-    def __init__(self, location):
-        x, y = location
+                pygame.draw.polygon(self.screen, (0, 0, 0), ((x0, y0), (x1, y0), (x0, y1)))
+                pygame.draw.polygon(self.screen, (50, 50, 150), ((x1, y0), (x1, y1), (x0, y1)))
 
 
 Game()
