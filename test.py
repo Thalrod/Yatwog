@@ -1,67 +1,114 @@
 import pygame
+from OpenGL.GL import *
+from ctypes import *
 
 import numpy as np
-from OpenGL.GL import *
-from OpenGL.GLUT import *
-from OpenGL.GLU import *
 
 
 def with_OpenGl():
-    def myInit():
-        glClearColor(1.0, 1.0, 1.0, 1.0)
-        glPointSize(10.0)
-        gluOrtho2D(0, 500, 0, 500)
+    pygame.init()
+    screen = pygame.display.set_mode((512, 512), pygame.OPENGL | pygame.DOUBLEBUF, 24)
+    pygame.display.set_caption("With OpenGl")
+    glViewport(0, 0, 512, 512)
+    glClearColor(0.0, 0.0, 0.0, 1.0)
+    glEnableClientState(GL_VERTEX_ARRAY)
 
-    def display():
-        res = 64
-        width = 500
-        height = 500
+    res = 16
+    width = screen.get_width()
+    height = screen.get_height()
+
+    v = []
+    v2 = []
+    maxX = 0
+    maxX1 = 0
+    maxY = 0
+    maxY1 = 0
+    for y in range(res):
+        for x in range(res):
+            x0 = (width / res) * x * 2 / width - 1
+            y0 = (height / res) * y * 2 / height - 1
+
+            x1 = (width / res) * (x + 1) * 2 / width - 1
+            y1 = (height / res) * (y + 1) * 2 / height - 1
+
+            maxX = x0 if x0 > maxX else maxX
+            maxX1 = x1 if x1 > maxX1 else maxX1
+            maxY = y0 if y0 > maxY else maxY
+            maxY1 = y1 if y1 > maxY1 else maxY1
+
+            v.append(x1)
+            v.append(y1)
+
+            v.append(x0)
+            v.append(y1)
+
+            v.append(x0)
+            v.append(y0)
+
+            v2.append(x1)
+            v2.append(y1)
+
+            v2.append(x1)
+            v2.append(y0)
+
+            v2.append(x0)
+            v2.append(y0)
+
+    vbo = glGenBuffers(1)
+    vbo1 = glGenBuffers(1)
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo)
+    glBufferData(GL_ARRAY_BUFFER, len(v) * 4, (c_float * len(v))(*v), GL_STATIC_DRAW)
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo1)
+    glBufferData(GL_ARRAY_BUFFER, len(v2) * 4, (c_float * len(v2))(*v2), GL_STATIC_DRAW)
+
+    run = True
+    clock = pygame.time.Clock()
+
+    while run:
+        clock.tick(1000)
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT:
+                run = False
+            if e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_o:
+                    run = False
+
         glClear(GL_COLOR_BUFFER_BIT)
 
-        for y in range(int(res)):
-            for x in range(int(res)):
-                glBegin(GL_TRIANGLE_STRIP)
-                x0 = (width / res) * x
-                y0 = (height / res) * y
+        glColor3f(88 / 255, 103 / 255, 55 / 255)
 
-                x1 = (width / res) * (x + 1)
-                y1 = (height / res) * (y + 1)
+        glBindBuffer(GL_ARRAY_BUFFER, vbo)
 
-                glColor3f(88/255, 103/255, 55/255)
-                glVertex2f(x0, y0)
-                glVertex2f(x1, y0)
-                glVertex2f(x0, y1)
-                # x1, y0), (x1, y1), (x0, y1)
-                glColor3f(48/255, 153/255, 5/255)
-                glVertex2f(x1, y0)
-                glVertex2f(x1, y1)
-                glVertex2f(x0, y1)
+        glVertexPointer(2, GL_FLOAT, 0, None)
 
-                glEnd()
+        glDrawArrays(GL_TRIANGLES, 0, len(v) * 4)
 
-        glFlush()
+        glColor3f(48 / 255, 153 / 255, 5 / 255)
 
-    glutInit()
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB)
-    glutInitWindowSize(512, 512)
-    glutInitWindowPosition(100, 100)
-    glutCreateWindow("My OpenGL Code")
-    myInit()
-    glutDisplayFunc(display)
-    glutMainLoop()
-    glutDestroyWindow(0)
+        glBindBuffer(GL_ARRAY_BUFFER, vbo1)
+
+        glVertexPointer(2, GL_FLOAT, 0, None)
+
+        glDrawArrays(GL_TRIANGLES, 0, len(v2) * 4)
+
+        pygame.display.flip()
+
+    run = True
+    pygame.quit()
 
 
 def without_OpenGl():
     pygame.init()
     display = pygame.display
     screen = display.set_mode((512, 512))
-    display.set_caption("Pygame Test")
+    display.set_caption("Without OpenGl")
 
     run = True
     clock = pygame.time.Clock()
 
-    res = 64
+    res = 16
     width = screen.get_width()
     height = screen.get_height()
 
@@ -71,6 +118,9 @@ def without_OpenGl():
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 run = False
+            if e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_o:
+                    run = False
 
         for y in range(int(res)):
 
@@ -89,6 +139,10 @@ def without_OpenGl():
         display.flip()
         screen.fill((255, 255, 255))
 
+    run = True
     pygame.quit()
 
-without_OpenGl()
+
+while True:
+    without_OpenGl()
+    with_OpenGl()
