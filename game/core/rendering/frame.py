@@ -2,6 +2,8 @@ import pygame
 import json
 import os
 
+from OpenGL.GL import *
+
 from game.core.game.mainloop import Game
 
 
@@ -10,9 +12,20 @@ class Frame():
         self.settings = self.loadConfig()
         pygame.init()
         self.display = pygame.display
-        self.screen = self.display.set_mode((self.recalculateSize()))
-        self.display.set_caption(self.settings["Frame"]["Title"])
-        game = Game(self)
+        self.processor = self.settings["Frame"]["Processor"]
+        print("Graphical Processor:", self.processor)
+        if self.processor == "GPU":
+            self.screen = self.display.set_mode((self.recalculateSize()), pygame.OPENGL | pygame.DOUBLEBUF, 24)
+            self.display.set_caption(self.settings["Frame"]["Title"])
+            glClearColor(0.3, 0.4, 0.3, 1.0)
+            glClear(GL_COLOR_BUFFER_BIT)
+            glEnableClientState(GL_VERTEX_ARRAY)
+        elif self.processor == 'CPU':
+            self.display = pygame.display
+            self.screen = self.display.set_mode((self.recalculateSize()))
+            self.display.set_caption(self.settings["Frame"]["Title"])
+
+        game = Game(self, self.processor)
         game.mainloop()
 
     def loadConfig(self):

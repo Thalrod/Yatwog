@@ -1,5 +1,5 @@
 from .generation.color import Color
-from matplotlib import pyplot as plt
+
 from enum import Enum
 
 
@@ -8,14 +8,14 @@ class Mode(Enum):
     GREY = "grey"
 
 
-class Renderer():
+class ColorMap():
     def __init__(self, noiseMap, regions):
         self.noiseMap = noiseMap
         self.regions = regions
         self.mapWidth = len(self.noiseMap[0])
         self.mapHeight = len(self.noiseMap)
 
-    def render(self, mode):
+    def generateColorMap(self, mode):
 
         loadstr = []
         for j in range(15):
@@ -37,7 +37,6 @@ class Renderer():
                 print('\r{} '.format(''.join(loadstr)) + ' {}'.format(
                     str(int((y + 1) * 100 / self.mapHeight)) + '/100' + r'%' + " - Creating colored colourMap"), end='')
             print("")
-            print(colourmap[0])
 
         elif mode == Mode.GREY.value:
 
@@ -52,21 +51,4 @@ class Renderer():
 
             print(colourmap[0])
 
-            '''map = []
-            loadstr = []
-            for j in range(15):
-                loadstr.append(".")
-            for y in range(self.mapHeight):
-                loadstr[int((y / self.mapHeight * 15) // 1)] = "#"
-                for x in range(self.mapWidth):
-                    map.append(None)
-                print('\r{} '.format(''.join(loadstr)) + ' {}'.format(
-                    str(int((y + 1) * 100 / self.mapHeight)) + '/100' + r'%' + " - Formatting greyed colourMap"),
-                      end='')
-            print("")'''
-
-        # print(len(map[0]), len(map), len(noiseMap),"\n" + "\n".join(str(noiseMap[0][i]) for i in range(len(noiseMap[0]))))
-
-        # plt.imshow(self.noiseMap, cmap="viridis")
-        # plt.show()
         return self.noiseMap, colourmap

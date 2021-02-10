@@ -7,11 +7,12 @@
             "E": "(0,0,0)"
         },
         "Frame": {
-            "Title": "2D Game",
+            "Title": "2D Game suce ?",
             "height" : 800,
             "width" : 800,
             "PaddingY" : 5,
             "PaddingX" : 5,
+            "Processor":"CPU",
             "RenderMode" : "colored"
         },
         "Rectangle": {

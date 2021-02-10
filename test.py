@@ -6,10 +6,10 @@ import numpy as np
 
 
 def with_OpenGl():
+
     pygame.init()
     screen = pygame.display.set_mode((512, 512), pygame.OPENGL | pygame.DOUBLEBUF, 24)
     pygame.display.set_caption("With OpenGl")
-    glViewport(0, 0, 512, 512)
     glClearColor(0.0, 0.0, 0.0, 1.0)
     glEnableClientState(GL_VERTEX_ARRAY)
 
