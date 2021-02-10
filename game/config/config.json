@@ -13,7 +13,7 @@
             "PaddingY" : 5,
             "PaddingX" : 5,
             "Processor":"CPU",
-            "RenderMode" : "colored"
+            "RenderMode" : "grey"
         },
         "Rectangle": {
             "OffsetX": 0,

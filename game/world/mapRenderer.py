@@ -50,8 +50,9 @@ class MapRenderer:
             elif self.mode == Mode.GREY.value:
                 for j in range(len(map)):
                     for o in range(len(map[j])):
-                        y = int(self.rectheight) * j
-                        x = int(self.rectwidth) * o
+                        y = j
+                        x = o
+
                         w = self.rectwidth
                         h = self.rectheight
                         color = colormap[j * len(map[j]) + o]
