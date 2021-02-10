@@ -1,73 +1,74 @@
-import pygame
-from OpenGL.GL import *
-from ctypes import *
-
 import numpy as np
+import pygame
+import ctypes
+from OpenGL.GL import *
+
+
+class MeshData:
+    def __init__(self, meshWidth, meshHeight, vaoID=None, vertexCount=None):
+        self.triangleIndex = 0
+        self.vertices = list(np.zeros(meshWidth * meshHeight * 2))
+        self.triangles = list(np.zeros((meshWidth - 1) * (meshHeight - 1) * 6))
+        self.vaoID = vaoID
+        self.vertexCount = vertexCount
+
+    def addTriangle(self, a, b, c):
+        self.triangles[self.triangleIndex] = a
+        self.triangles[self.triangleIndex + 1] = b
+        self.triangles[self.triangleIndex + 2] = c
+        self.triangleIndex += 3
 
 
 def with_OpenGl():
-
+    vaos = []
+    vbos = []
     pygame.init()
-    screen = pygame.display.set_mode((512, 512), pygame.OPENGL | pygame.DOUBLEBUF, 24)
+    screen = pygame.display.set_mode((512, 512), pygame.OPENGL | pygame.DOUBLEBUF)
     pygame.display.set_caption("With OpenGl")
-    glClearColor(0.0, 0.0, 0.0, 1.0)
-    glEnableClientState(GL_VERTEX_ARRAY)
+    glViewport(0, 0, 512, 512)
 
-    res = 16
-    width = screen.get_width()
-    height = screen.get_height()
+    # Creating vertices and indices
+    vertices = [-0.5, 0.5,
+                -0.5, -0.5,
+                0.5, -0.5,
+                0.5, 0.5]
 
-    v = []
-    v2 = []
-    maxX = 0
-    maxX1 = 0
-    maxY = 0
-    maxY1 = 0
-    for y in range(res):
-        for x in range(res):
-            x0 = (width / res) * x * 2 / width - 1
-            y0 = (height / res) * y * 2 / height - 1
+    indices = [0, 1, 3,
+               3, 2, 1]
 
-            x1 = (width / res) * (x + 1) * 2 / width - 1
-            y1 = (height / res) * (y + 1) * 2 / height - 1
+    # Creating VAO and binding it
+    vaoID = glGenVertexArrays(1)
+    vaos.append(vaoID)
+    glBindVertexArray(vaoID)
 
-            maxX = x0 if x0 > maxX else maxX
-            maxX1 = x1 if x1 > maxX1 else maxX1
-            maxY = y0 if y0 > maxY else maxY
-            maxY1 = y1 if y1 > maxY1 else maxY1
+    # Creating VBO for verticices and binding it
+    verticesID = glGenBuffers(1)
+    vbos.append(verticesID)
+    glBindBuffer(GL_ARRAY_BUFFER, verticesID)
 
-            v.append(x1)
-            v.append(y1)
+    # Creating bufferData to store vertices position
+    verticesBuffer = np.array(vertices, dtype='f')
+    glBufferData(GL_ARRAY_BUFFER, verticesBuffer, GL_STATIC_DRAW)
+    glVertexAttribPointer(0, 2, GL_FLOAT, False, 0, None)
+    glBindBuffer(GL_ARRAY_BUFFER, 0)
 
-            v.append(x0)
-            v.append(y1)
+    # Creating VBO for indices and binding it
+    indicesID = glGenBuffers(1)
+    vbos.append(indicesID)
 
-            v.append(x0)
-            v.append(y0)
+    # Creating bufferData to store indices
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesID)
+    indicesBuffer = np.array(indices, dtype='uint32')
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL_STATIC_DRAW)
 
-            v2.append(x1)
-            v2.append(y1)
-
-            v2.append(x1)
-            v2.append(y0)
-
-            v2.append(x0)
-            v2.append(y0)
-
-    vbo = glGenBuffers(1)
-    vbo1 = glGenBuffers(1)
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo)
-    glBufferData(GL_ARRAY_BUFFER, len(v) * 4, (c_float * len(v))(*v), GL_STATIC_DRAW)
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo1)
-    glBufferData(GL_ARRAY_BUFFER, len(v2) * 4, (c_float * len(v2))(*v2), GL_STATIC_DRAW)
+    # unbind VAO because I finished to use it
+    glBindVertexArray(0)
 
     run = True
     clock = pygame.time.Clock()
 
     while run:
-        clock.tick(1000)
+        clock.tick(60)
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 run = False
@@ -75,27 +76,33 @@ def with_OpenGl():
                 if e.key == pygame.K_o:
                     run = False
 
+        # Preparing screen
         glClear(GL_COLOR_BUFFER_BIT)
+        glClearColor(1, 0, 0, 1)
 
-        glColor3f(88 / 255, 103 / 255, 55 / 255)
+        # Rendering
+        # binding VAO
+        glBindVertexArray(vaoID)
 
-        glBindBuffer(GL_ARRAY_BUFFER, vbo)
+        # enabling VertexAttribArray to get vertices
+        glEnableVertexAttribArray(0)
 
-        glVertexPointer(2, GL_FLOAT, 0, None)
+        # draw elements
+        glDrawElements(GL_TRIANGLES, len(indices) * 4, GL_UNSIGNED_INT, None)
 
-        glDrawArrays(GL_TRIANGLES, 0, len(v) * 4)
-
-        glColor3f(48 / 255, 153 / 255, 5 / 255)
-
-        glBindBuffer(GL_ARRAY_BUFFER, vbo1)
-
-        glVertexPointer(2, GL_FLOAT, 0, None)
-
-        glDrawArrays(GL_TRIANGLES, 0, len(v2) * 4)
+        # disabling VertexAttribArray and unbind VAO because I finished to use them
+        glDisableVertexAttribArray(0)
+        glBindVertexArray(0)
 
         pygame.display.flip()
 
-    run = True
+    # Cleanup
+    for vao in vaos:
+        glDeleteVertexArrays(1, vao)
+
+    for vbo in vbos:
+        glDeleteBuffers(1, vbo)
+
     pygame.quit()
 
 
@@ -143,6 +150,4 @@ def without_OpenGl():
     pygame.quit()
 
 
-while True:
-    without_OpenGl()
-    with_OpenGl()
+with_OpenGl()
