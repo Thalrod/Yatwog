@@ -5,12 +5,11 @@ from OpenGL.GL import *
 
 
 class MeshData:
-    def __init__(self, meshWidth, meshHeight, vaoID=None, vertexCount=None):
+    def __init__(self, meshWidth, meshHeight, vaoID=None):
         self.triangleIndex = 0
-        self.vertices = list(np.zeros(meshWidth * meshHeight * 2))
+        self.vertices = list(np.zeros(meshWidth * meshHeight))
         self.triangles = list(np.zeros((meshWidth - 1) * (meshHeight - 1) * 6))
         self.vaoID = vaoID
-        self.vertexCount = vertexCount
 
     def addTriangle(self, a, b, c):
         self.triangles[self.triangleIndex] = a
@@ -27,19 +26,39 @@ def with_OpenGl():
     pygame.display.set_caption("With OpenGl")
     glViewport(0, 0, 512, 512)
 
-    # Creating vertices and indices
-    vertices = [-0.5, 0.5,
-                -0.5, -0.5,
-                0.5, -0.5,
-                0.5, 0.5]
+    heightMap = [[0, 0, 0],
+                 [0, 0, 0],
+                 [0, 0, 0]]
 
-    indices = [0, 1, 3,
-               3, 2, 1]
+    indices = [0, 4, 3,
+               0, 1, 4,
+               2, 6, 5]
+    # 0, 4, 3, 3, 0, 1, 2, 6, 5, 5, 2, 3, 6, 10, 9, 9, 6, 7, 8, 12, 11, 11, 8, 9
+
+    width = len(heightMap[0])
+    height = len(heightMap)
+
+    topLeftX = (width - 1) / -2
+    topLeftY = (height - 1) / 2
+    meshData = MeshData(width, height)
+    vertexIndex = 0
+
+    for y in range(height):
+        for x in range(width):
+
+            meshData.vertices[vertexIndex] = (topLeftX + x, topLeftY - y)
+
+            if x < width - 1 and y < height - 1:
+                meshData.addTriangle(vertexIndex, vertexIndex + width + 1, vertexIndex + width)
+                # meshData.addTriangle(vertexIndex + width + 1, vertexIndex, vertexIndex + 1)
+
+            vertexIndex += 1
 
     # Creating VAO and binding it
-    vaoID = glGenVertexArrays(1)
-    vaos.append(vaoID)
-    glBindVertexArray(vaoID)
+    meshID = glGenVertexArrays(1)
+    vaos.append(meshID)
+    meshData.vaoID = meshID
+    glBindVertexArray(meshID)
 
     # Creating VBO for verticices and binding it
     verticesID = glGenBuffers(1)
@@ -47,8 +66,8 @@ def with_OpenGl():
     glBindBuffer(GL_ARRAY_BUFFER, verticesID)
 
     # Creating bufferData to store vertices position
-    verticesBuffer = np.array(vertices, dtype='f')
-    glBufferData(GL_ARRAY_BUFFER, verticesBuffer, GL_STATIC_DRAW)
+    verticesBuffer = np.array(meshData.vertices, dtype='f')
+    glBufferData(GL_ARRAY_BUFFER, verticesBuffer.flatten(), GL_STATIC_DRAW)
     glVertexAttribPointer(0, 2, GL_FLOAT, False, 0, None)
     glBindBuffer(GL_ARRAY_BUFFER, 0)
 
@@ -58,7 +77,7 @@ def with_OpenGl():
 
     # Creating bufferData to store indices
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesID)
-    indicesBuffer = np.array(indices, dtype='uint32')
+    indicesBuffer = np.array(meshData.triangles, dtype='uint32')
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL_STATIC_DRAW)
 
     # unbind VAO because I finished to use it
@@ -82,13 +101,13 @@ def with_OpenGl():
 
         # Rendering
         # binding VAO
-        glBindVertexArray(vaoID)
+        glBindVertexArray(meshData.vaoID)
 
         # enabling VertexAttribArray to get vertices
         glEnableVertexAttribArray(0)
 
         # draw elements
-        glDrawElements(GL_TRIANGLES, len(indices) * 4, GL_UNSIGNED_INT, None)
+        glDrawElements(GL_TRIANGLES, meshData.triangleIndex, GL_UNSIGNED_INT, None)
 
         # disabling VertexAttribArray and unbind VAO because I finished to use them
         glDisableVertexAttribArray(0)
